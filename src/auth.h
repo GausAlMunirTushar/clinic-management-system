@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <conio.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -36,6 +38,23 @@ public:
             file.close();
         }
         return false;
+    }
+
+    string inputPassword() {
+        string password;
+        char ch;
+        cout << "Enter password: ";
+        while ((ch = _getch()) != '\r') { // '\r' is the Enter key
+            if (ch == '\b' && !password.empty()) { // Handle backspace
+                cout << "\b \b";
+                password.pop_back();
+            } else if (ch != '\b') {
+                password.push_back(ch);
+                cout << "*";
+            }
+        }
+        cout << endl;
+        return password;
     }
 
 private:

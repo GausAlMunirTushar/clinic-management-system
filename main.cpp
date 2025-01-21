@@ -1,91 +1,233 @@
-
-// File: main.cpp
 #include "./src/auth.h"
 #include <iostream>
-#include <fstream>
-#include <string>
 #include <vector>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 
+struct Doctor {
+    int id;
+    string name;
+    string specialization;
+};
+
+struct Patient {
+    int id;
+    string name;
+    int age;
+    double height; // in meters
+    double weight; // in kg
+};
+
+vector<Doctor> doctors;
+vector<Patient> patients;
+int doctorID = 1;
+int patientID = 1;
+
+void clearScreen() {
+    cout << string(50, '\n');
+}
+
+void showBanner(const string& title) {
+    cout << "\n===================================\n";
+    cout << "         " << title << "         \n";
+    cout << "===================================\n\n";
+}
+
+void addDoctor() {
+    Doctor doc;
+    doc.id = doctorID++;
+    cout << "Enter doctor's name: ";
+    cin.ignore();
+    getline(cin, doc.name);
+    cout << "Enter specialization: ";
+    getline(cin, doc.specialization);
+    doctors.push_back(doc);
+    cout << "\nDoctor added successfully!\n";
+}
+
+void viewDoctors() {
+    if (doctors.empty()) {
+        cout << "\nNo doctors available.\n";
+        return;
+    }
+    showBanner("Doctor List");
+    cout << left << setw(5) << "ID" << setw(20) << "Name" << "Specialization\n";
+    cout << "-------------------------------------\n";
+    for (const auto& doc : doctors) {
+        cout << left << setw(5) << doc.id << setw(20) << doc.name << doc.specialization << "\n";
+    }
+}
+
+void deleteDoctor() {
+    viewDoctors();
+    if (doctors.empty()) return;
+
+    int id;
+    cout << "\nEnter Doctor ID to delete: ";
+    cin >> id;
+
+    auto it = find_if(doctors.begin(), doctors.end(), [id](const Doctor& doc) {
+        return doc.id == id;
+    });
+
+    if (it != doctors.end()) {
+        doctors.erase(it);
+        cout << "\nDoctor deleted successfully!\n";
+    } else {
+        cout << "\nDoctor not found!\n";
+    }
+}
+
+void addPatient() {
+    Patient pat;
+    pat.id = patientID++;
+    cout << "Enter patient's name: ";
+    cin.ignore();
+    getline(cin, pat.name);
+    cout << "Enter age: ";
+    cin >> pat.age;
+    cout << "Enter height (in meters): ";
+    cin >> pat.height;
+    cout << "Enter weight (in kg): ";
+    cin >> pat.weight;
+    patients.push_back(pat);
+    cout << "\nPatient added successfully!\n";
+}
+
+void viewPatients() {
+    if (patients.empty()) {
+        cout << "\nNo patients available.\n";
+        return;
+    }
+    showBanner("Patient List");
+    cout << left << setw(5) << "ID" << setw(20) << "Name" << setw(5) << "Age" << "BMI\n";
+    cout << "-------------------------------------\n";
+    for (const auto& pat : patients) {
+        double bmi = pat.weight / (pat.height * pat.height);
+        cout << left << setw(5) << pat.id << setw(20) << pat.name << setw(5) << pat.age << fixed << setprecision(2) << bmi << "\n";
+    }
+}
+
+void deletePatient() {
+    viewPatients();
+    if (patients.empty()) return;
+
+    int id;
+    cout << "\nEnter Patient ID to delete: ";
+    cin >> id;
+
+    auto it = find_if(patients.begin(), patients.end(), [id](const Patient& pat) {
+        return pat.id == id;
+    });
+
+    if (it != patients.end()) {
+        patients.erase(it);
+        cout << "\nPatient deleted successfully!\n";
+    } else {
+        cout << "\nPatient not found!\n";
+    }
+}
+
+void calculateBMI() {
+    double height, weight;
+    cout << "Enter height (in meters): ";
+    cin >> height;
+    cout << "Enter weight (in kg): ";
+    cin >> weight;
+    double bmi = weight / (height * height);
+    cout << "\nYour BMI is: " << fixed << setprecision(2) << bmi << "\n";
+    if (bmi < 18.5)
+        cout << "You are underweight.\n";
+    else if (bmi >= 18.5 && bmi < 24.9)
+        cout << "You have a normal weight.\n";
+    else if (bmi >= 25 && bmi < 29.9)
+        cout << "You are overweight.\n";
+    else
+        cout << "You are obese.\n";
+}
 int main() {
     Authentication auth;
     bool isLoggedIn = false;
-    string loggedInUser;
     int choice;
 
     do {
         if (!isLoggedIn) {
-            cout << "\n--- Clinic Management System ---\n";
+            showBanner("Clinic Management System");
             cout << "1. Register\n2. Login\n0. Exit\n";
             cout << "Enter your choice: ";
             cin >> choice;
 
             switch (choice) {
             case 1: {
-                string username, password;
+                string username;
                 cout << "Enter username: ";
                 cin >> username;
-                cout << "Enter password: ";
-                cin >> password;
+                string password = auth.inputPassword();
                 if (auth.registerUser(username, password)) {
-                    cout << "Registration successful!\n";
+                    cout << "\nRegistration successful!\n";
                 } else {
-                    cout << "Registration failed!\n";
+                    cout << "\nRegistration failed!\n";
                 }
                 break;
             }
             case 2: {
-                string username, password;
+                string username;
                 cout << "Enter username: ";
                 cin >> username;
-                cout << "Enter password: ";
-                cin >> password;
+                string password = auth.inputPassword();
                 if (auth.loginUser(username, password)) {
                     isLoggedIn = true;
-                    loggedInUser = username;
-                    cout << "Login successful! Welcome, " << username << "!\n";
+                    cout << "\nLogin successful! Welcome, " << username << "!\n";
                 } else {
-                    cout << "Invalid credentials!\n";
+                    cout << "\nInvalid credentials!\n";
                 }
                 break;
             }
             case 0:
-                cout << "Exiting...\n";
+                cout << "\nExiting...\n";
                 break;
             default:
-                cout << "Invalid choice!\n";
+                cout << "\nInvalid choice!\n";
             }
         } else {
-            cout << "\n--- Main Menu ---\n";
-            cout << "1. Add Doctor\n2. View Doctors\n3. Add Patient\n4. View Patients\n5. Logout\n0. Exit\n";
+            showBanner("Main Menu");
+            cout << "1. Add Doctor\n2. View Doctors\n3. Delete Doctor\n4. Add Patient\n5. View Patients\n6. Delete Patient\n7. Calculate BMI\n8. Logout\n0. Exit\n";
             cout << "Enter your choice: ";
             cin >> choice;
 
             switch (choice) {
             case 1:
-                cout << "[Add Doctor functionality here]" << endl;
+                addDoctor();
                 break;
             case 2:
-                cout << "[View Doctors functionality here]" << endl;
+                viewDoctors();
                 break;
             case 3:
-                cout << "[Add Patient functionality here]" << endl;
+                deleteDoctor();
                 break;
             case 4:
-                cout << "[View Patients functionality here]" << endl;
+                addPatient();
                 break;
             case 5:
+                viewPatients();
+                break;
+            case 6:
+                deletePatient();
+                break;
+            case 7:
+                calculateBMI();
+                break;
+            case 8:
                 isLoggedIn = false;
-                loggedInUser = "";
-                cout << "Logged out successfully!\n";
+                cout << "\nLogged out successfully!\n";
                 break;
             case 0:
-                cout << "Exiting...\n";
+                cout << "\nExiting...\n";
                 break;
             default:
-                cout << "Invalid choice!\n";
+                cout << "\nInvalid choice!\n";
             }
         }
     } while (choice != 0);
