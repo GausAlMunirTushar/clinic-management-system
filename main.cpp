@@ -106,7 +106,7 @@ void viewPatients() {
     cout << "-------------------------------------\n";
     for (const auto& pat : patients) {
         double bmi = pat.weight / (pat.height * pat.height);
-        cout << left << setw(5) << pat.id << setw(20) << pat.name << setw(5) << pat.age << fixed << setprecision(2) << bmi << "\n";
+        cout << left << setw(5) << pat.id << setw(20) << pat.name << setw(5) << pat.age << fixed << setprecision(2) << "\n";
     }
 }
 
@@ -130,23 +130,6 @@ void deletePatient() {
     }
 }
 
-void calculateBMI() {
-    double height, weight;
-    cout << "Enter height (in meters): ";
-    cin >> height;
-    cout << "Enter weight (in kg): ";
-    cin >> weight;
-    double bmi = weight / (height * height);
-    cout << "\nYour BMI is: " << fixed << setprecision(2) << bmi << "\n";
-    if (bmi < 18.5)
-        cout << "You are underweight.\n";
-    else if (bmi >= 18.5 && bmi < 24.9)
-        cout << "You have a normal weight.\n";
-    else if (bmi >= 25 && bmi < 29.9)
-        cout << "You are overweight.\n";
-    else
-        cout << "You are obese.\n";
-}
 int main() {
     Authentication auth;
     bool isLoggedIn = false;
@@ -193,7 +176,7 @@ int main() {
             }
         } else {
             showBanner("Main Menu");
-            cout << "1. Add Doctor\n2. View Doctors\n3. Delete Doctor\n4. Add Patient\n5. View Patients\n6. Delete Patient\n7. Calculate BMI\n8. Logout\n0. Exit\n";
+            cout << "1. Add Doctor\n2. View Doctors\n3. Delete Doctor\n4. Add Patient\n5. View Patients\n6. Delete Patient\n7. Logout \n0. Exit\n";
             cout << "Enter your choice: ";
             cin >> choice;
 
@@ -217,9 +200,6 @@ int main() {
                 deletePatient();
                 break;
             case 7:
-                calculateBMI();
-                break;
-            case 8:
                 isLoggedIn = false;
                 cout << "\nLogged out successfully!\n";
                 break;
